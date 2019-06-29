@@ -3,7 +3,7 @@ from scipy.spatial.transform import Rotation
 
 import chainer_graphics.transform as T
 
-TESTCASES = 100
+TESTCASES = 10
 
 def test_euler2rot():
     angles = np.random.randn(TESTCASES, 3)
