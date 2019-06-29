@@ -12,13 +12,13 @@ def cosine_similarity(image0, image1):
 
 def test_pixelcoords():
     image = np.random.randn(2, 3, 100, 200)
-    ps = I.pixel_coords(np, 100, 200).data
+    ps = I.pixel_coords(np, 100, 200, 'i').data
     us, vs = np.meshgrid(np.arange(200), np.arange(100))
     assert(np.all(ps[0] == us))
     assert(np.all(ps[1] == vs))
 
 def test_warp_affine():
-    identity = np.array([[1, 0, 0], [0, 1, 0]])
+    identity = np.array([[1., 0., 0.], [0., 1., 0.]])
     mat = identity + np.random.randn(2, 3)/10
 
     image = cv2.imread("test/lena.png").astype('f')
