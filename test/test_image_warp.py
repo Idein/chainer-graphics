@@ -7,7 +7,7 @@ from util import cosine_similarity, eps
 
 def test_pixelcoords():
     image = np.random.randn(2, 3, 100, 200)
-    ps = I.pixel_coords(np, 100, 200, 'i').data
+    ps = I.pixel_coords(np, 100, 200, 'i')
     us, vs = np.meshgrid(np.arange(200), np.arange(100))
     assert(np.all(ps[0] == us))
     assert(np.all(ps[1] == vs))
