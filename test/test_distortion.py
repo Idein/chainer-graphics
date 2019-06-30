@@ -38,8 +38,12 @@ def test_reversibility():
     distorted_image = C.undistort_image(K, dist, image0).data
     image1 = C.distort_image(K, dist, distorted_image).data
 
-    #cv2.imwrite('distorted.png', distorted_image[0].transpose((1, 2, 0)))
-    #cv2.imwrite('image0.png', image0[0].transpose((1, 2, 0)))
-    #cv2.imwrite('image1.png', image1[0].transpose((1, 2, 0)))
+    distorted_image = distorted_image[0].transpose((1, 2, 0))
+    image0 = image0[0].transpose((1, 2, 0))
+    image1 = image1[0].transpose((1, 2, 0))
+
+    #cv2.imwrite('distorted.png', distorted_image)
+    #cv2.imwrite('image0.png', image0)
+    #cv2.imwrite('image1.png', image1)
 
     assert(1 - cosine_similarity(image0, image1) < eps)
