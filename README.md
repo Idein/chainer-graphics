@@ -1,6 +1,7 @@
 # chainer-graphics
 
-Differential Graphics Operations for chainer
+Differential Graphics Operations for chainer.
+
 Currently implemented operations.
 
 - `chainer_graphics.camera`
