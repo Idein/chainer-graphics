@@ -2,7 +2,7 @@ from chainer import backend
 import chainer.functions as F
 
 from chainer_graphics.transform import to_homogenous
-from .distortion import distort, undistort
+from .distortion import distort_points, undistort_points
 
 def cam2pixel(K, x, D=None):
     """Convert 3D points to pixel coordinates.
@@ -31,7 +31,7 @@ def cam2pixel(K, x, D=None):
     B, _, N = x.shape
     x = x / x[:, 2, None, :]
     if D is not None:
-        x = to_homogenous(distort(D, x[:,:2,:]))
+        x = to_homogenous(distort_points(D, x[:,:2,:]))
     return F.batch_matmul(K, x)[:,:2]
 
 def pixel2cam(K, p, z, D=None):
@@ -66,6 +66,6 @@ def pixel2cam(K, p, z, D=None):
     z = z[:, None, :]
     q = F.batch_inv(K) @ to_homogenous(p)
     if D is not None:
-        q = undistort(D, q[:, :2, :])
+        q = undistort_points(D, q[:, :2, :])
         q = to_homogenous(q)
     return z * q

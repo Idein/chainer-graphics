@@ -1,7 +1,7 @@
 from chainer import backend
 import chainer.functions as F
 
-def distort(coef, x):
+def distort_points(coef, x):
     """Apply distortion to given points.
 
     Args:
@@ -36,7 +36,7 @@ def distort(coef, x):
 
     return x * f + 2 * xy * coef[:, 2:4] + coef[:, 3:1:-1] * (r2 + 2 * x * x)
 
-def undistort(coef, p, iteration=5):
+def undistort_points(coef, p, iteration=5):
     """Remove distortion from given points.
 
     Args:
