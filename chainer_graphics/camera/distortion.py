@@ -29,10 +29,8 @@ def distort(coef, x):
     # Compute
     # f = (1 + k1r^2 + k2r^4 + k3r^6) / (1 + k4r^2 + k5r^4 + k6r^6)
     r2 = F.sum(x * x, 1, keepdims=True)  # r^2
-    r4 = r2 * r2
-    r6 = r4 * r2
-    f = (1 + r2 * coef[:, 0:1] + r4 * coef[:, 1:2] + r6 * coef[:, 4:5]) / \
-        (1 + r2 * coef[:, 5:6] + r4 * coef[:, 6:7] + r6 * coef[:, 7:8])
+    f = (1 + r2 * (coef[:, 0:1] + r2 * (coef[:, 1:2] + r2 * coef[:, 4:5]))) / \
+        (1 + r2 * (coef[:, 5:6] + r2 * (coef[:, 6:7] + r2 * coef[:, 7:8])))
 
     xy = F.prod(x, 1, keepdims=True)
 
@@ -78,11 +76,9 @@ def undistort(coef, p, iteration=5):
     # (B, 2, N) -> (B, N, 2)
     p = p.transpose((0, 2, 1))
     r2 = F.sum(p * p, 2, keepdims=True) # r^2
-    r4 = r2 * r2 # r^4
-    r6 = r4 * r2 # r^6
 
     # Compute initial guess
-    X = (1 - r2 * k1 + r4 * (3*k1**2 - k2) + r6 * (8*k1*k2 - 12*k1**3 - k3)) * p
+    X = (1 - r2 * (k1 + r2 * (3*k1**2 - k2 + r2 * (8*k1*k2 - 12*k1**3 - k3)))) * p
 
     # Refinement by Newton-Raphson method
     for i in range(iteration):
@@ -90,12 +86,10 @@ def undistort(coef, p, iteration=5):
         y = X[:, :, 1:2]
         xy = F.prod(X, 2, keepdims=True)
         r2 = F.sum(X * X, 2, keepdims=True)  # r^2
-        r4 = r2 * r2 # r^4
-        r6 = r4 * r2 # r^6
-        a = 1 + r2 * k1 + r4 * k2 + r6 * k3
-        b = 1 + r2 * k4 + r4 * k5 + r6 * k6
-        da = k1 + 2 * r2 * k2 + 3 * r4 * k3
-        db = k4 + 2 * r2 * k5 + 3 * r4 * k6
+        a = 1 + r2 * (k1 + r2 * (k2 + r2 * k3))
+        b = 1 + r2 * (k4 + r2 * (k5 + r2 * k6))
+        da = k1 + r2 * (2 * k2 + 3 * r2 * k3)
+        db = k4 + r2 * (2 * k5 + 3 * r2 * k6)
 
         g = a/b
         dg = (da*b - a*db) / b**2
