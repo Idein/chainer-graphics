@@ -37,4 +37,4 @@ def distort(coef, x):
 
     xy = x.prod(1, keepdims=True)
 
-    return x * f + 2 * xy * coef[:, 2:4] + coef[:, 4:1:-1] * (r2 + 2 * x * x)
+    return x * f + 2 * xy * coef[:, 2:4] + coef[:, 3:1:-1] * (r2 + 2 * x * x)

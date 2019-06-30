@@ -17,7 +17,7 @@ def test_cam2pixel():
 
     rvec = np.zeros(3)
     tvec = np.zeros(3)
-    dist = random_array(1, 4) / 100
+    dist = random_array(1, 8) / 100
 
     p0, _ = cv2.projectPoints(x0[0], rvec, tvec, K.data[0], dist)
     p1 = C.cam2pixel(K, x0.transpose((0, 2, 1)), dist).data.transpose((2, 0, 1))
