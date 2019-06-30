@@ -1,5 +1,7 @@
 from chainer import backend
 import chainer.functions as F
+from chainer_graphics.transform import to_homogenous
+from chainer_graphics.image import pixel_coords, warp_dense
 
 def distort_points(coef, x):
     """Apply distortion to given points.
@@ -107,3 +109,67 @@ def undistort_points(coef, p, iteration=5):
 
     # (B, N, 2) -> (B, 2, N)
     return X.transpose((0, 2, 1))
+
+def distort_image(K, coef, image):
+    """Apply undistortion traosformation to given images.
+
+    Args:
+        K (:class `~chainer.Variable` or :ref:`ndarray`):
+            A 2-D array of shape `(B, 3, 3)`.
+            Camera matrices.
+
+        coef (:class `~chainer.Variable` or :ref:`ndarray`):
+            Distortion coefficients.
+            A 2-D array of shape `(B, K)`
+            K is 4 or 5 or 8. The elements corresponds to
+            (k1, k2, p1, p2, [k3, [k4, k5 k6]])
+            respectively.
+
+        image (:class `~chainer.Variable` or :ref:`ndarray`):
+            A 3-D array of shape `(B, C, H, W)`
+
+    Returns:
+        ~chainer.Variable:
+            The distorted image.
+            A 3-D array of shape `(B, C, H, W)`
+    """
+    xp = backend.get_array_module(coef)
+    B, _, H, W = image.shape
+
+    ps1 = pixel_coords(xp, H, W, coef.dtype).reshape(1, 2, -1)
+    ps1 = F.batch_matmul(F.batch_inv(K), to_homogenous(ps1))[:,:2,:]
+    ps0 = undistort_points(coef, ps1)
+    ps0 = F.batch_matmul(K, to_homogenous(ps0))[:,:2,:]
+    return warp_dense(image, ps0.reshape(1, 2, H, W))
+
+def undistort_image(K, coef, image):
+    """Apply undistortion traosformation to given images.
+
+    Args:
+        K (:class `~chainer.Variable` or :ref:`ndarray`):
+            A 2-D array of shape `(B, 3, 3)`.
+            Camera matrices.
+
+        coef (:class `~chainer.Variable` or :ref:`ndarray`):
+            Distortion coefficients.
+            A 2-D array of shape `(B, K)`
+            K is 4 or 5 or 8. The elements corresponds to
+            (k1, k2, p1, p2, [k3, [k4, k5 k6]])
+            respectively.
+
+        image (:class `~chainer.Variable` or :ref:`ndarray`):
+            A 3-D array of shape `(B, C, H, W)`
+
+    Returns:
+        ~chainer.Variable:
+            The distorted image.
+            A 3-D array of shape `(B, C, H, W)`
+    """
+    xp = backend.get_array_module(coef)
+    B, _, H, W = image.shape
+
+    ps1 = pixel_coords(xp, H, W, coef.dtype).reshape(1, 2, -1)
+    ps1 = F.batch_matmul(F.batch_inv(K), to_homogenous(ps1))[:,:2,:]
+    ps0 = distort_points(coef, ps1)
+    ps0 = F.batch_matmul(K, to_homogenous(ps0))[:,:2,:]
+    return warp_dense(image, ps0.reshape(1, 2, H, W))

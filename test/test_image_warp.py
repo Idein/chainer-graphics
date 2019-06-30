@@ -3,13 +3,7 @@ import cv2
 
 import chainer
 import chainer_graphics.image as I
-
-eps = 1e-3
-
-def cosine_similarity(image0, image1):
-    v0 = image0.flatten()
-    v1 = image1.flatten()
-    return v0.dot(v1) / (np.linalg.norm(v0) * np.linalg.norm(v1))
+from util import cosine_similarity, eps
 
 def test_pixelcoords():
     image = np.random.randn(2, 3, 100, 200)
