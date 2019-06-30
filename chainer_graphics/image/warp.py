@@ -55,7 +55,7 @@ def warp_dense(image, ps):
     """
     xp = backend.get_array_module(image)
     B, _, H, W = image.shape
-    ps = 2 * ps / xp.array([W-1, H-1]).reshape(-1, 2, 1) - 1
+    ps = 2 * ps / xp.array([W-1, H-1]).reshape(-1, 2, 1, 1) - 1
     ps = ps.reshape(B, 2, H, W)
 
     return F.spatial_transformer_sampler(image, ps)
@@ -81,7 +81,7 @@ def warp_affine(image, mat):
 
     ps1 = pixel_coords(xp, H, W, mat.dtype).reshape(1, 2, -1)
     ps0 = inverse_affine(mat[:, :, :2], mat[:, :, 2], ps1)
-    return warp_dense(image, ps0)
+    return warp_dense(image, ps0.reshape(1, 2, H, W))
 
 def warp_perspective(image, mat):
     """Warp images with perspective transformation
@@ -106,4 +106,4 @@ def warp_perspective(image, mat):
     num   = affine(mat[:,:2,:2], mat[:,:2,2], ps1)
     denom = affine(mat[:,2,:2].reshape(-1, 1, 2), mat[:,2,2].reshape(-1, 1), ps1)
     ps0 = num / denom
-    return warp_dense(image, ps0)
+    return warp_dense(image, ps0.reshape(1, 2, H, W))
