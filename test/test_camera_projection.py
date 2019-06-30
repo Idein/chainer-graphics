@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+import chainer
 import chainer_graphics.camera as C
 
 BATCH = 2
@@ -12,7 +13,9 @@ def random_array(*args):
 def test_cam2pixel():
     focal = 1 + random_array(1, 2) / 100
     offset = random_array(1, 2) / 100
-    K = C.camera_matrix(focal, offset)
+    K = C.camera_matrix(
+            chainer.Variable(focal),
+            chainer.Variable(offset))
     rvec = np.zeros(3)
     tvec = np.zeros(3)
     dist = random_array(1, 8) * 1e-5
@@ -20,7 +23,10 @@ def test_cam2pixel():
     x0 = random_array(1, POINTS, 3)
 
     p0, _ = cv2.projectPoints(x0[0], rvec, tvec, K.data[0], dist)
-    p1 = C.cam2pixel(K, x0.transpose((0, 2, 1)), dist).data.transpose((2, 0, 1))
+    p1 = C.cam2pixel(
+            K,
+            chainer.Variable(x0.transpose((0, 2, 1))),
+            chainer.Variable(dist)).data.transpose((2, 0, 1))
     assert(np.allclose(p0, p1, rtol=1e-4))
 
 def test_pixel2cam():
@@ -30,14 +36,20 @@ def test_pixel2cam():
 
     p = random_array(1, POINTS, 2)
     z = random_array(1, POINTS, 1)
-    K = C.camera_matrix(focal, offset)
+    K = C.camera_matrix(
+            chainer.Variable(focal),
+            chainer.Variable(offset))
 
     q = cv2.undistortPoints(p, K[0].data, dist[0])
     x = z * q[:, :, 0:1]
     y = z * q[:, :, 1:2]
     x0 = np.concatenate((x, y, z), axis=2)
 
-    x1 = C.pixel2cam(K, p.transpose((0,2,1)), z[:,:,0], dist).data.transpose((0,2,1))
+    x1 = C.pixel2cam(
+            K,
+            chainer.Variable(p.transpose((0,2,1))),
+            chainer.Variable(z[:,:,0]),
+            chainer.Variable(dist)).data.transpose((0,2,1))
 
     assert(np.allclose(x0, x1))
 
@@ -49,7 +61,16 @@ def test_reversibility():
     offset = random_array(BATCH, 2) / 100
     dist = random_array(1, 8) * 1e-5
 
-    K = C.camera_matrix(focal, offset)
-    p = C.cam2pixel(K, x0, dist)
-    x1 = C.pixel2cam(K, p, z, dist).data
+    K = C.camera_matrix(
+            chainer.Variable(focal),
+            chainer.Variable(offset))
+    p = C.cam2pixel(
+            K,
+            chainer.Variable(x0),
+            chainer.Variable(dist))
+    x1 = C.pixel2cam(
+            K,
+            p,
+            chainer.Variable(z),
+            chainer.Variable(dist)).data
     assert(np.allclose(x0, x1))

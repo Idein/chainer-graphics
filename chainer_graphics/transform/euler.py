@@ -21,8 +21,8 @@ def euler2rot(angles):
     ys = angles[:, 1]
     zs = angles[:, 2]
 
-    zeros = xp.zeros_like(xs)
-    ones  = xp.ones_like(xs)
+    zeros = xp.zeros(xs.shape, xs.dtype)
+    ones  = xp.ones(xs.shape, xs.dtype)
 
     cosxs = F.cos(xs)
     sinxs = F.sin(xs)

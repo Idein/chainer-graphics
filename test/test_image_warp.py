@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 
+import chainer
 import chainer_graphics.image as I
 
 eps = 1e-3
@@ -28,7 +29,9 @@ def test_warp_affine():
 
     image = np.expand_dims(image.transpose((2, 0, 1)), axis=0)
     mat = np.expand_dims(mat, axis=0)
-    warped_image = I.warp_affine(image, mat).data
+    warped_image = I.warp_affine(
+            chainer.Variable(image),
+            chainer.Variable(mat)).data
     warped_image = warped_image.transpose((0, 2, 3, 1)).reshape((H, W, 3))
 
     #cv2.imwrite('ref.png', ref_image)
@@ -47,7 +50,9 @@ def test_warp_perspective():
 
     image = np.expand_dims(image.transpose((2, 0, 1)), axis=0)
     mat = np.expand_dims(mat, axis=0)
-    warped_image = I.warp_perspective(image, mat).data
+    warped_image = I.warp_perspective(
+            chainer.Variable(image),
+            chainer.Variable(mat)).data
     warped_image = warped_image.transpose((0, 2, 3, 1)).reshape((H, W, 3))
 
     #cv2.imwrite('ref.png', ref_image)

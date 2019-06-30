@@ -23,8 +23,8 @@ def camera_matrix(focal, offset):
     cx = offset[:, 0]
     cy = offset[:, 1]
 
-    zeros = xp.zeros_like(fx)
-    ones  = xp.ones_like(fx)
+    zeros = xp.zeros(fx.shape, fx.dtype)
+    ones  = xp.ones(fx.shape, fx.dtype)
 
     K = F.stack([
         fx, zeros, cx,

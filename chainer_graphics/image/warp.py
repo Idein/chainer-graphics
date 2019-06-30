@@ -16,8 +16,7 @@ def affine(A, t, x):
         ~chainer.Variable:
             A 2-D array of shape `(B, M, N)`
     """
-    xp = backend.get_array_module(A)
-    return A @ x + xp.expand_dims(t, axis=2)
+    return A @ x + F.expand_dims(t, axis=2)
 
 def inverse_affine(A, t, x):
     """Compute A^-1(x-t)
@@ -35,8 +34,7 @@ def inverse_affine(A, t, x):
             A 2-D array of shape `(B, M, N)`
     """
 
-    xp = backend.get_array_module(A)
-    return F.batch_inv(A) @ (x - xp.expand_dims(t, axis=2))
+    return F.batch_inv(A) @ (x - F.expand_dims(t, axis=2))
 
 def pixel_coords(xp, H, W, dtype):
     """Generate pixel coordinates"""
