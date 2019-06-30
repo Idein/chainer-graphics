@@ -5,7 +5,8 @@ Currently implemented operations.
 
 - `chainer_graphics.camera`
   - Projection and Re-projection
-  - Camera matrix and distortion coefficients
+  - Camera matrix
+  - Distortion
 - `chainer_graphics.image`
   - Image warping
 - `chainer_graphics.transform`
