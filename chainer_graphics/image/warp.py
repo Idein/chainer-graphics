@@ -1,5 +1,6 @@
 from chainer import backend
 import chainer.functions as F
+from chainer_graphics.image import *
 
 def affine(A, t, x):
     """Compute Ax+t
@@ -35,12 +36,6 @@ def inverse_affine(A, t, x):
     """
 
     return F.batch_inv(A) @ (x - F.expand_dims(t, axis=2))
-
-def pixel_coords(xp, H, W, dtype):
-    """Generate pixel coordinates"""
-    us, vs = xp.meshgrid(xp.arange(W).astype(dtype), xp.arange(H).astype(dtype))
-    ps = F.stack((us, vs), axis=0)
-    return ps
 
 def warp_dense(image, ps):
     """Dense image warping
